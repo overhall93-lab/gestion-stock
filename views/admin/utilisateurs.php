@@ -47,4 +47,4 @@
     </div>
 </div>
 
-<script src="assets/js/admin.js"></script>  
+<!-- admin.js est chargé par index.php — ne pas le charger ici -->

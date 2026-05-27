@@ -14,6 +14,18 @@ require_once __DIR__ . '/../includes/validators.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 
+// Capturer toutes les erreurs PHP et les renvoyer en JSON
+set_exception_handler(function($e) {
+    echo json_encode([
+        'succes'  => false,
+        'message' => 'Erreur serveur : ' . $e->getMessage()
+    ]);
+    exit;
+});
+set_error_handler(function($errno, $errstr) {
+    throw new ErrorException($errstr, $errno);
+});
+
 // Toutes les actions de ce controller sont réservées à l'admin
 verifierRole(ROLE_ADMIN);
 

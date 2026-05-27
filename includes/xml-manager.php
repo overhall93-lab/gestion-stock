@@ -31,18 +31,32 @@ function xmlCharger($chemin) {
 //  Empêche la corruption en cas d'accès simultané
 // ============================================================
 function xmlSauvegarder(DOMDocument $dom, $chemin) {
-    $fp = fopen($chemin, 'r+');
-    if (!$fp) {
-        throw new Exception("Impossible d'ouvrir le fichier pour écriture : $chemin");
+    // On génère d'abord le XML en mémoire
+    $xmlString = $dom->saveXML();
+    if ($xmlString === false) {
+        throw new Exception("Erreur lors de la génération du XML : $chemin");
     }
-    if (flock($fp, LOCK_EX)) {       // verrou exclusif
-        $dom->save($chemin);
-        flock($fp, LOCK_UN);          // libérer le verrou
+
+    // Verrou via un fichier de lock séparé (évite le conflit fopen+save sur Windows)
+    $fichierLock = $chemin . '.lock';
+    $fp = fopen($fichierLock, 'c');
+    if (!$fp) {
+        throw new Exception("Impossible de créer le fichier de verrou : $fichierLock");
+    }
+
+    if (flock($fp, LOCK_EX)) {
+        // Écriture atomique : file_put_contents remplace le fichier entièrement
+        $resultat = file_put_contents($chemin, $xmlString, LOCK_EX);
+        flock($fp, LOCK_UN);
+        fclose($fp);
+        @unlink($fichierLock); // nettoyer le fichier de lock
+        if ($resultat === false) {
+            throw new Exception("Impossible d'écrire dans le fichier : $chemin");
+        }
     } else {
         fclose($fp);
         throw new Exception("Impossible de verrouiller le fichier : $chemin");
     }
-    fclose($fp);
 }
 
 // ============================================================
@@ -206,15 +220,19 @@ function articleMettreAJourChamp(DOMElement $node, $tag, $valeur) {
 }
 
 function articleNodeVersTableau(DOMElement $node) {
+    $lire = function($tag) use ($node) {
+        $el = $node->getElementsByTagName($tag)->item(0);
+        return $el ? $el->nodeValue : '';
+    };
     return [
         'id'             => $node->getAttribute('id'),
-        'nom'            => $node->getElementsByTagName('nom')->item(0)->nodeValue,
-        'categorie'      => $node->getElementsByTagName('categorie')->item(0)->nodeValue,
-        'prix_unitaire'  => $node->getElementsByTagName('prix_unitaire')->item(0)->nodeValue,
-        'quantite_stock' => $node->getElementsByTagName('quantite_stock')->item(0)->nodeValue,
-        'seuil_alerte'   => $node->getElementsByTagName('seuil_alerte')->item(0)->nodeValue,
-        'date_ajout'     => $node->getElementsByTagName('date_ajout')->item(0)->nodeValue,
-        'statut'         => $node->getElementsByTagName('statut')->item(0)->nodeValue,
+        'nom'            => $lire('nom'),
+        'categorie'      => $lire('categorie'),
+        'prix_unitaire'  => $lire('prix_unitaire'),
+        'quantite_stock' => $lire('quantite_stock'),
+        'seuil_alerte'   => $lire('seuil_alerte'),
+        'date_ajout'     => $lire('date_ajout'),
+        'statut'         => $lire('statut'),
     ];
 }
 
@@ -301,15 +319,22 @@ function mouvementsParPeriode($dateDebut, $dateFin) {
 
 // ─── Helper privé mouvements ───
 function mouvementNodeVersTableau(DOMElement $node) {
+    // Lecture défensive : item(0) peut être null si le champ est absent du XML
+    // (ex: anciens mouvements créés avant l'ajout du champ id_utilisateur)
+    $lire = function($tag) use ($node) {
+        $el = $node->getElementsByTagName($tag)->item(0);
+        return $el ? $el->nodeValue : '';
+    };
+
     return [
         'id'             => $node->getAttribute('id'),
-        'type'           => $node->getElementsByTagName('type')->item(0)->nodeValue,
-        'id_article'     => $node->getElementsByTagName('id_article')->item(0)->nodeValue,
-        'quantite'       => $node->getElementsByTagName('quantite')->item(0)->nodeValue,
-        'motif'          => $node->getElementsByTagName('motif')->item(0)->nodeValue,
-        'date_heure'     => $node->getElementsByTagName('date_heure')->item(0)->nodeValue,
-        'id_utilisateur' => $node->getElementsByTagName('id_utilisateur')->item(0)->nodeValue,
-        'stock_apres'    => $node->getElementsByTagName('stock_apres')->item(0)->nodeValue,
+        'type'           => $lire('type'),
+        'id_article'     => $lire('id_article'),
+        'quantite'       => $lire('quantite'),
+        'motif'          => $lire('motif'),
+        'date_heure'     => $lire('date_heure'),
+        'id_utilisateur' => $lire('id_utilisateur'),  // '' si absent (anciens enregistrements)
+        'stock_apres'    => $lire('stock_apres'),
     ];
 }
 
@@ -392,13 +417,17 @@ function utilisateurTrouverNode(DOMDocument $dom, $id) {
 }
 
 function utilisateurNodeVersTableau(DOMElement $node) {
+    $lire = function($tag) use ($node) {
+        $el = $node->getElementsByTagName($tag)->item(0);
+        return $el ? $el->nodeValue : '';
+    };
     return [
         'id'            => $node->getAttribute('id'),
-        'nom'           => $node->getElementsByTagName('nom')->item(0)->nodeValue,
-        'login'         => $node->getElementsByTagName('login')->item(0)->nodeValue,
-        'password_hash' => $node->getElementsByTagName('password_hash')->item(0)->nodeValue,
-        'role'          => $node->getElementsByTagName('role')->item(0)->nodeValue,
-        'statut'        => $node->getElementsByTagName('statut')->item(0)->nodeValue,
+        'nom'           => $lire('nom'),
+        'login'         => $lire('login'),
+        'password_hash' => $lire('password_hash'),
+        'role'          => $lire('role'),
+        'statut'        => $lire('statut'),
     ];
 }
 
