@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <articles>
-    <article id="ART001">
-        <nom>Clavier Mecanique</nom>
-        <categorie>Peripheriques</categorie>
-        <prix_unitaire>89.99</prix_unitaire>
-        <quantite_stock>25</quantite_stock>
-        <seuil_alerte>5</seuil_alerte>
-        <date_ajout>2024-01-15</date_ajout>
-        <statut>actif</statut>
-    </article>
-    <article id="ART002">   
-        <nom>Souris Gaming</nom>
-        <categorie>Peripheriques</categorie>
-        <prix_unitaire>49.99</prix_unitaire>
-        <quantite_stock>3</quantite_stock>
-        <seuil_alerte>5</seuil_alerte>
-        <date_ajout>2024-01-20</date_ajout>
-        <statut>actif</statut>
-    </article>
+  <article id="ART001">
+    <nom>Clavier Mecanique</nom>
+    <categorie>Peripheriques</categorie>
+    <prix_unitaire>89.99</prix_unitaire>
+    <quantite_stock>25</quantite_stock>
+    <seuil_alerte>5</seuil_alerte>
+    <date_ajout>2024-01-15</date_ajout>
+    <statut>actif</statut>
+  </article>
+  <article id="ART002">
+    <nom>Souris Gaming</nom>
+    <categorie>Peripheriques</categorie>
+    <prix_unitaire>49.99</prix_unitaire>
+    <quantite_stock>30</quantite_stock>
+    <seuil_alerte>5</seuil_alerte>
+    <date_ajout>2024-01-20</date_ajout>
+    <statut>actif</statut>
+  </article>
 </articles>

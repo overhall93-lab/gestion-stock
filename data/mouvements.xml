@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mouvements>
-    <mouvement id="MOV001">
-        <type>entree</type>
-        <id_article>ART001</id_article>
-        <quantite>25</quantite>
-        <motif>Stock initial</motif>
-        <date_heure>2024-01-15 09:00:00</date_heure>
-        <id_utilisateur>U001</id_utilisateur>
-        <stock_apres>25</stock_apres>
-    </mouvement>
+  <mouvement id="MOV001">
+    <type>entree</type>
+    <id_article>ART001</id_article>
+    <quantite>25</quantite>
+    <motif>Stock initial</motif>
+    <date_heure>2024-01-15 09:00:00</date_heure>
+    <id_utilisateur>U001</id_utilisateur>
+    <stock_apres>25</stock_apres>
+  </mouvement>
+  <mouvement id="MOV002">
+    <type>entree</type>
+    <id_article>ART002</id_article>
+    <quantite>27</quantite>
+    <motif>mono</motif>
+    <date_heure>2026-05-27 23:42:07</date_heure>
+    <id_utilisateur>U001</id_utilisateur>
+    <stock_apres>30</stock_apres>
+  </mouvement>
 </mouvements>

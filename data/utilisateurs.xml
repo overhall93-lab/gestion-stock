@@ -8,10 +8,10 @@
     <statut>actif</statut>
   </utilisateur>
   <utilisateur id="U002">
-    <nom>claude</nom>
-    <login>marilou</login>
-    <password_hash>$2y$10$ho78mBFROzC8Pyy7aAnYtu727/99tJqcwj89Hx1d1xDsuoDyrwMOi</password_hash>
-    <role>gestionnaire</role>
+    <nom>CLAUDE</nom>
+    <login>claude</login>
+    <password_hash>$2y$10$u2V0BWJEuM5gU2S5NPmN9.3xib.8q34ek739ZvHBRuRpK21L/MWT.</password_hash>
+    <role>consultant</role>
     <statut>actif</statut>
   </utilisateur>
 </utilisateurs>
