@@ -1,260 +1,104 @@
+<?php
+define('GESTION_STOCK', true);
+require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/session.php';
+
+// Si déjà connecté, rediriger vers le dashboard
+if (!empty($_SESSION['connecte'])) {
+    header('Location: index.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion — GestionStock Pro</title>
-    <style>
-        /* ── Reset et base ── */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --bleu:       #1a56db;
-            --bleu-dark:  #1e429f;
-            --bleu-light: #e8f0fe;
-            --gris-bg:    #f3f4f6;
-            --gris-bord:  #d1d5db;
-            --texte:      #111827;
-            --texte-soft: #6b7280;
-            --rouge:      #dc2626;
-            --vert:       #16a34a;
-            --blanc:      #ffffff;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--gris-bg);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* ── Carte de connexion ── */
-        .login-card {
-            background: var(--blanc);
-            border-radius: 12px;
-            padding: 48px 40px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
-        }
-
-        /* ── En-tête ── */
-        .login-header {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .login-logo {
-            width: 56px;
-            height: 56px;
-            background: var(--bleu);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-        }
-
-        .login-logo svg { width: 28px; height: 28px; fill: white; }
-
-        .login-header h1 {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--texte);
-        }
-
-        .login-header p {
-            font-size: 14px;
-            color: var(--texte-soft);
-            margin-top: 6px;
-        }
-
-        /* ── Formulaire ── */
-        .form-group { margin-bottom: 20px; }
-
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--texte);
-            margin-bottom: 6px;
-        }
-
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1.5px solid var(--gris-bord);
-            border-radius: 8px;
-            font-size: 15px;
-            color: var(--texte);
-            background: var(--blanc);
-            transition: border-color 0.2s;
-            outline: none;
-        }
-
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            border-color: var(--bleu);
-            box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
-        }
-
-        /* ── Bouton ── */
-        .btn-login {
-            width: 100%;
-            padding: 12px;
-            background: var(--bleu);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: background 0.2s, transform 0.1s;
-        }
-
-        .btn-login:hover  { background: var(--bleu-dark); }
-        .btn-login:active { transform: scale(0.99); }
-        .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        /* ── Messages ── */
-        .alerte {
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        .alerte.erreur  { background: #fee2e2; color: var(--rouge); border: 1px solid #fca5a5; }
-        .alerte.succes  { background: #dcfce7; color: var(--vert);  border: 1px solid #86efac; }
-        .alerte.visible { display: block; }
-
-        /* ── Expiration ── */
-        .session-expiration {
-            background: #fef3c7;
-            color: #92400e;
-            border: 1px solid #fcd34d;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-    </style>
+    <title>Connexion — <?= APP_NOM ?></title>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body class="page-login">
 
-<div class="login-card">
+<div class="login-wrapper">
+    <div class="login-box">
 
-    <div class="login-header">
-        <div class="login-logo">
-            <!-- Icône boîte / stock -->
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zM3 5h18a1 1 0 0 0 0-2H3a1 1 0 0 0 0 2zm7 7h4v2h-4v-2z"/>
-            </svg>
+        <div class="login-header">
+            <h1><?= APP_NOM ?></h1>
+            <p>Gestion de stock Informatique &amp; Électronique</p>
         </div>
-        <h1>GestionStock Pro</h1>
-        <p>Connectez-vous pour accéder à l'application</p>
-    </div>
 
-    <!-- Message expiration session -->
-    <?php if (isset($_GET['expiration'])): ?>
-    <div class="session-expiration">
-        ⏱ Votre session a expiré. Veuillez vous reconnecter.
-    </div>
-    <?php endif; ?>
+        <div id="message-login" class="message hidden"></div>
 
-    <!-- Message d'erreur / succès dynamique -->
-    <div class="alerte" id="msg-alerte"></div>
-
-    <!-- Formulaire -->
-    <form id="form-login">
         <div class="form-group">
             <label for="login">Identifiant</label>
             <input type="text" id="login" name="login"
-                   placeholder="Votre identifiant"
-                   autocomplete="username"
-                   required>
+                   placeholder="Votre identifiant" autocomplete="username">
         </div>
 
         <div class="form-group">
             <label for="password">Mot de passe</label>
             <input type="password" id="password" name="password"
-                   placeholder="Votre mot de passe"
-                   autocomplete="current-password"
-                   required>
+                   placeholder="Votre mot de passe" autocomplete="current-password">
         </div>
 
-        <button type="submit" class="btn-login" id="btn-submit">
+        <button id="btn-login" class="btn btn-primary btn-full">
             Se connecter
         </button>
-    </form>
 
+        <p class="login-footer">
+            Version <?= APP_VERSION ?> &mdash; Accès réservé au personnel autorisé
+        </p>
+
+    </div>
 </div>
 
 <script>
-// ── Gestion du formulaire de login via AJAX ──
-document.getElementById('form-login').addEventListener('submit', function(e) {
-    e.preventDefault();
+document.getElementById('btn-login').addEventListener('click', function () {
+    const login    = document.getElementById('login').value.trim();
+    const password = document.getElementById('password').value;
+    const msg      = document.getElementById('message-login');
+    const btn      = this;
 
-    const btn    = document.getElementById('btn-submit');
-    const alerte = document.getElementById('msg-alerte');
-    const login  = document.getElementById('login').value.trim();
-    const mdp    = document.getElementById('password').value;
-
-    // Masquer le message précédent
-    alerte.className = 'alerte';
-    alerte.textContent = '';
-
-    // Validation rapide côté client
-    if (!login || !mdp) {
-        afficherMessage('Veuillez remplir tous les champs.', 'erreur');
+    if (!login || !password) {
+        afficherMessage(msg, 'Veuillez remplir tous les champs.', 'erreur');
         return;
     }
 
-    // Désactiver le bouton pendant l'envoi
-    btn.disabled = true;
-    btn.textContent = 'Connexion en cours…';
+    btn.disabled    = true;
+    btn.textContent = 'Connexion...';
 
-    // Envoi AJAX vers authController
     fetch('controllers/authController.php', {
-        method: 'POST',
+        method : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'login', login: login, password: mdp })
+        body   : JSON.stringify({ action: 'login', login, password })
     })
-    .then(res => {
-        if (!res.ok) throw new Error('Erreur serveur : ' + res.status);
-        return res.json();
-    })
+    .then(r => r.json())
     .then(data => {
         if (data.succes) {
-            afficherMessage('Connexion réussie. Redirection…', 'succes');
-            setTimeout(() => { window.location.href = 'views/dashboard.php'; }, 800);
+            afficherMessage(msg, 'Connexion réussie. Redirection...', 'succes');
+            setTimeout(() => window.location.href = data.redirect, 800);
         } else {
-            afficherMessage(data.message || 'Identifiants incorrects.', 'erreur');
-            btn.disabled = false;
+            afficherMessage(msg, data.message, 'erreur');
+            btn.disabled    = false;
             btn.textContent = 'Se connecter';
-            document.getElementById('password').value = '';
         }
     })
     .catch(() => {
-        afficherMessage('Impossible de contacter le serveur. Vérifiez XAMPP.', 'erreur');
-        btn.disabled = false;
+        afficherMessage(msg, 'Erreur réseau. Vérifiez votre connexion.', 'erreur');
+        btn.disabled    = false;
         btn.textContent = 'Se connecter';
     });
 });
 
-function afficherMessage(texte, type) {
-    const alerte = document.getElementById('msg-alerte');
-    alerte.textContent = texte;
-    alerte.className = 'alerte ' + type + ' visible';
-}
+// Permettre la touche Entrée pour valider
+document.getElementById('password').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') document.getElementById('btn-login').click();
+});
 
-// Focus automatique sur le champ login
-document.getElementById('login').focus();
+function afficherMessage(el, texte, type) {
+    el.textContent  = texte;
+    el.className    = 'message ' + type;
+}
 </script>
 
 </body>
