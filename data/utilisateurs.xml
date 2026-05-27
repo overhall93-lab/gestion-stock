@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<utilisateurs>
+    <utilisateur id="U001">
+        <nom>Administrateur</nom>
+        <login>admin</login>
+        <password_hash>REMPLACER_PAR_HASH</password_hash>
+        <statut>actif</statut>
+    </utilisateur>
+</utilisateurs>

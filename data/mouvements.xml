@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<mouvements>
+    <mouvement id="MOV001">
+        <type>entree</type>
+        <id_article>ART001</id_article>
+        <quantite>25</quantite>
+        <motif>Stock initial</motif>
+        <date_heure>2024-01-15 09:00:00</date_heure>
+        <stock_apres>25</stock_apres>
+    </mouvement>
+</mouvements>
