@@ -1,19 +1,25 @@
 <?php
 // ============================================================
-//  index.php — Point d'entrée unique de l'application
-//  Redirige vers login si pas connecté, dashboard sinon
+//  index.php — Point d'entrée du projet
+//  Redirige vers login si non connecté, sinon vers dashboard
 // ============================================================
+
 define('GESTION_STOCK', true);
+require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/session.php';
 
-require_once 'includes/config.php';
-require_once 'includes/session.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Si pas connecté → login
 if (empty($_SESSION['connecte']) || $_SESSION['connecte'] !== true) {
     header('Location: login.php');
     exit;
 }
 
-// Si connecté → dashboard
+// Mettre à jour l'activité
+$_SESSION['derniere_activite'] = time();
+
+// Rediriger vers le dashboard
 header('Location: views/dashboard.php');
 exit;

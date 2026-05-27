@@ -1,80 +1,115 @@
 <?php
 // ============================================================
-//  views/layout/header.php — En-tête et navigation commune
-//  À inclure EN PREMIER dans chaque vue (après define + requires)
-//  Suppose que verifierConnexion() a déjà été appelé
+//  views/layout/header.php — En-tête commun à toutes les pages
+//  USAGE : include en début de chaque vue, après verifierConnexion()
+//  Variable attendue : $titrePage (string)
 // ============================================================
 
-// Déterminer la page active pour surligner le bon lien de nav
-$pageActuelle = basename($_SERVER['PHP_SELF'], '.php');
+if (!defined('GESTION_STOCK')) {
+    define('GESTION_STOCK', true);
+    require_once __DIR__ . '/../../includes/config.php';
+    require_once __DIR__ . '/../../includes/session.php';
+}
+verifierConnexion();
+
+$titrePage = $titrePage ?? 'Tableau de bord';
+
+// Calcul du chemin racine relatif selon la profondeur de la vue
+$profondeur = substr_count(str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME']),
+              str_replace('\\', '/', realpath(__DIR__ . '/../../')));
+$racine = str_repeat('../', substr_count(
+    str_replace(realpath(__DIR__ . '/../../'), '', str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME'])),
+    '/'
+));
+// Chemin racine fiable
+$racineUrl = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
+if (strpos($_SERVER['SCRIPT_NAME'], '/views/') !== false) {
+    $racineUrl = dirname(dirname(dirname($_SERVER['SCRIPT_NAME'])));
+    $racineUrl = rtrim($racineUrl, '/') . '/';
+} elseif (strpos($_SERVER['SCRIPT_NAME'], '/controllers/') !== false) {
+    $racineUrl = dirname(dirname($_SERVER['SCRIPT_NAME']));
+    $racineUrl = rtrim($racineUrl, '/') . '/';
+} else {
+    $racineUrl = dirname($_SERVER['SCRIPT_NAME']);
+    $racineUrl = rtrim($racineUrl, '/') . '/';
+}
+
+// Chemin relatif CSS/JS
+$assetsPath = $racineUrl . 'assets/';
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= isset($titrePage) ? htmlspecialchars($titrePage) . ' — ' : '' ?>GestionStock Pro</title>
-    <link rel="stylesheet" href="<?= getBaseUrl() ?>assets/css/style.css">
+    <title><?= htmlspecialchars($titrePage) ?> — <?= APP_NOM ?></title>
+    <link rel="stylesheet" href="<?= $assetsPath ?>css/style.css">
 </head>
 <body>
 
-<!-- ── Barre de navigation supérieure ── -->
 <nav class="navbar">
-    <div class="nav-marque">
-        <span class="nav-logo">📦</span>
-        <span class="nav-titre">GestionStock Pro</span>
+    <div class="navbar-brand">
+        <a href="<?= $racineUrl ?>index.php"><?= APP_NOM ?></a>
     </div>
 
-    <ul class="nav-liens">
+    <ul class="navbar-menu">
         <li>
-            <a href="<?= getBaseUrl() ?>views/dashboard.php"
-               class="<?= $pageActuelle === 'dashboard' ? 'actif' : '' ?>">
-               Tableau de bord
+            <a href="<?= $racineUrl ?>views/dashboard.php"
+               class="<?= basename($_SERVER['SCRIPT_NAME']) === 'dashboard.php' ? 'active' : '' ?>">
+                Tableau de bord
             </a>
         </li>
         <li>
-            <a href="<?= getBaseUrl() ?>views/articles/liste.php"
-               class="<?= in_array($pageActuelle, ['liste','formulaire','fiche']) ? 'actif' : '' ?>">
-               Articles
+            <a href="<?= $racineUrl ?>views/articles/liste.php"
+               class="<?= strpos($_SERVER['SCRIPT_NAME'], '/articles/') !== false ? 'active' : '' ?>">
+                Articles
             </a>
         </li>
         <li>
-            <a href="<?= getBaseUrl() ?>views/mouvements/historique.php"
-               class="<?= in_array($pageActuelle, ['historique','entree','sortie']) ? 'actif' : '' ?>">
-               Mouvements
+            <a href="<?= $racineUrl ?>views/mouvements/historique.php"
+               class="<?= strpos($_SERVER['SCRIPT_NAME'], '/mouvements/') !== false ? 'active' : '' ?>">
+                Mouvements
             </a>
         </li>
         <li>
-            <a href="<?= getBaseUrl() ?>views/statistiques.php"
-               class="<?= $pageActuelle === 'statistiques' ? 'actif' : '' ?>">
-               Statistiques
+            <a href="<?= $racineUrl ?>views/statistiques.php"
+               class="<?= basename($_SERVER['SCRIPT_NAME']) === 'statistiques.php' ? 'active' : '' ?>">
+                Statistiques
             </a>
         </li>
-        <!-- Panneau Admin : visible uniquement pour le rôle admin -->
+        <li>
+            <a href="<?= $racineUrl ?>views/alertes.php"
+               class="<?= basename($_SERVER['SCRIPT_NAME']) === 'alertes.php' ? 'active' : '' ?>"
+               id="nav-alertes">
+                Alertes <span class="badge" id="badge-alertes" style="display:none;">0</span>
+            </a>
+        </li>
         <?php if (estAdmin()): ?>
         <li>
-            <a href="<?= getBaseUrl() ?>views/admin/utilisateurs.php"
-               class="nav-admin <?= in_array($pageActuelle, ['utilisateurs','formulaire_user']) ? 'actif' : '' ?>">
-               ⚙ Admin
+            <a href="<?= $racineUrl ?>views/admin/utilisateurs.php"
+               class="<?= strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false ? 'active' : '' ?>">
+                Admin
             </a>
         </li>
         <?php endif; ?>
     </ul>
 
-    <!-- Infos utilisateur connecté + déconnexion -->
-    <div class="nav-user">
-        <span class="nav-user-info">
-            <span class="nav-user-nom"><?= htmlspecialchars($_SESSION['nom'] ?? '') ?></span>
-            <span class="nav-user-role badge-role <?= htmlspecialchars($_SESSION['role'] ?? '') ?>">
-                <?= htmlspecialchars($_SESSION['role'] ?? '') ?>
-            </span>
+    <div class="navbar-user">
+        <span class="user-nom"><?= htmlspecialchars($_SESSION['nom']) ?></span>
+        <span class="user-role badge-role badge-role-<?= $_SESSION['role'] ?>">
+            <?= ucfirst($_SESSION['role']) ?>
         </span>
-        <a href="<?= getBaseUrl() ?>logout.php" class="btn-logout">Déconnexion</a>
+        <a href="<?= $racineUrl ?>logout.php" class="btn-logout">Déconnexion</a>
     </div>
 </nav>
 
-<!-- ── Contenu principal ── -->
-<main class="contenu-principal">
+<div class="page-wrapper">
+    <main class="main-content">
+        <div class="page-header">
+            <h2><?= htmlspecialchars($titrePage) ?></h2>
+        </div>
 
-    <!-- Zone de notification globale (alimentée par JS) -->
-    <div id="notification-globale" class="notification" role="alert" aria-live="polite"></div>
+<script>
+// Chemin racine pour les appels AJAX dans les vues
+const RACINE_URL = '<?= $racineUrl ?>';
+</script>
