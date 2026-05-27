@@ -3,7 +3,8 @@
     <utilisateur id="U001">
         <nom>Administrateur</nom>
         <login>admin</login>
-        <password_hash>REMPLACER_PAR_HASH</password_hash>
+        <password_hash>$2y$10$fPFfF3hbsIgpO6OiYDr8FuS.CDqsX12IAJHtJTeKrT0G7tlIt0SCi</password_hash>
+        <role>admin</role>
         <statut>actif</statut>
     </utilisateur>
 </utilisateurs>
